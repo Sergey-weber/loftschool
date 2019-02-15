@@ -32,10 +32,13 @@ function map(array, fn) {
  Напишите аналог встроенного метода reduce для работы с массивами
  Посмотрите как работает reduce и повторите это поведение для массива, который будет передан в параметре array
  */
-function reduce(array, fn, initial = array[0]) {
-	for(var i = 1; i < array.length; i++) {
-		initial = fn(initial, array[i], i, array)
+function reduce(array, fn, initial) {
+	let x = initial || array[0],
+		i = initial ? 0 : 1
+	for( ; i < array.length; i++) {
+		x = fn(x, array[i], i, array)
 	}
+	return x
 }
 
 /*
@@ -47,7 +50,14 @@ function reduce(array, fn, initial = array[0]) {
    upperProps({ name: 'Сергей', lastName: 'Петров' }) вернет ['NAME', 'LASTNAME']
  */
 function upperProps(obj) {
+	let newArr = []
+	for(let key in obj) {
+		key = key.toUpperCase()
+		newArr.push(key)
+	}
+	return newArr
 }
+
 
 /*
  Задание 5 *:
