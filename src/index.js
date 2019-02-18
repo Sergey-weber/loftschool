@@ -63,7 +63,7 @@ function isSomeTrue(array, fn) {
 
     var x = 0;
 
-    if (( array == 0 ) || (array.length <= 0) || (Object.prototype.toString.call(array) !== '[object Array]')) {
+    if (( array == 0 ) || (array.length <= 0) || (Array.isArray(array) == false)) {
         throw new Error('empty array');
     } else if (typeof fn != 'function') {
         throw new Error('fn is not a function');
@@ -98,14 +98,13 @@ function isSomeTrue(array, fn) {
  */
 function returnBadArguments(fn) {
     var x = new Array();
-    let z = ''
 
     if (typeof fn != 'function') {
         throw new Error('fn is not a function');
     }
     for (var i = 1; i < arguments.length; i++) {
         try {
-            z = fn(arguments[i]);
+            fn(arguments[i]);
         } catch (e) {
             x.push(arguments[i]);
         }
