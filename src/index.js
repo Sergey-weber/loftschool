@@ -21,13 +21,14 @@ function isAllTrue(array, fn) {
     var x = 0;
     var y = 0;
 
-    if (( array == 0 ) || (array.length <= 0) || (Object.prototype.toString.call(array) !== '[object Array]')) {
-        throw new Error("empty array");
+    if (( array == 0 ) || (array.length <= 0) || (Array.isArray(array) == false)) {
+        throw new Error('empty array');
     } else if (typeof fn != 'function') {
-        throw new Error("fn is not a function");
+        throw new Error('fn is not a function');
     } else {
         for (var i = 0; i < array.length; i++) {
             var z = fn(array[i]);
+
             if (z == false) {
                 y++;
             } else if (z == true) {
@@ -62,14 +63,15 @@ function isSomeTrue(array, fn) {
 
     var x = 0;
 
-     if (( array == 0 ) || (array.length <= 0) || (Object.prototype.toString.call(array) !== '[object Array]')) {
-        throw new Error("empty array");
+    if (( array == 0 ) || (array.length <= 0) || (Object.prototype.toString.call(array) !== '[object Array]')) {
+        throw new Error('empty array');
     } else if (typeof fn != 'function') {
-        throw new Error("fn is not a function");
+        throw new Error('fn is not a function');
     } else {
 
         for (var i = 0; i < array.length; i++) {
             var z = fn(array[i]);
+
             if (z == true) {
                 x++;
             }
@@ -77,8 +79,7 @@ function isSomeTrue(array, fn) {
 
         if (x < 1) {
             return false;
-        } else (x >= 1)
-        {
+        } else if (x >= 1) {
             return true;
         }
     }
@@ -97,9 +98,10 @@ function isSomeTrue(array, fn) {
  */
 function returnBadArguments(fn) {
     var x = new Array();
-    var z = '';
+    let z = ''
+
     if (typeof fn != 'function') {
-        throw new Error("fn is not a function");
+        throw new Error('fn is not a function');
     }
     for (var i = 1; i < arguments.length; i++) {
         try {
@@ -108,6 +110,7 @@ function returnBadArguments(fn) {
             x.push(arguments[i]);
         }
     }
+
     return x;
 }
 
@@ -129,44 +132,47 @@ function returnBadArguments(fn) {
    - какой-либо из аргументов div является нулем (с текстом "division by 0")
  */
 function calculator(number = 0) {
-     if (typeof number != 'number') {
-        throw new Error("number is not a number");
+    if (typeof number != 'number') {
+        throw new Error('number is not a number');
     }
 
-       var object = {
-            sum: function() {
-                for( let i = 0; i < arguments.length; i++ ) {
-                    number += arguments[i]
-                }
-               return number
-            },
-            dif: function () {
-                for( let i = 0; i < arguments.length; i++ ) {
-                    number -= arguments[i]
-                }
-                return number
-            },
-            div: function() {
-                for ( let i = 0; i < arguments.length; i++ ) {
-                    if( arguments[i] == 0 ) { throw new Error('division by 0') }
-                    number /= arguments[i]
-                }
-                return number
-
-            },
-            mul: function() {
-                for ( let i = 0; i < arguments.length; i++ ) {
-                    number *= arguments[i]
-                }
-                return number
+    var object = {
+        sum: function() {
+            for ( let i = 0; i < arguments.length; i++ ) {
+                number += arguments[i]
             }
+
+            return number
+        },
+        dif: function () {
+            for ( let i = 0; i < arguments.length; i++ ) {
+                number -= arguments[i]
+            }
+
+            return number
+        },
+        div: function() {
+            for ( let i = 0; i < arguments.length; i++ ) {
+                if ( arguments[i] == 0 ) { 
+                    throw new Error('division by 0')
+                }
+                number /= arguments[i]
+            }
+
+            return number
+
+        },
+        mul: function() {
+            for ( let i = 0; i < arguments.length; i++ ) {
+                number *= arguments[i]
+            }
+
+            return number
         }
+    }
+
     return object
 }
-
-
-
-
 
 /* При решении задач, пострайтесь использовать отладчик */
 
