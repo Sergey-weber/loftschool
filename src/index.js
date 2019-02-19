@@ -128,10 +128,14 @@ function deleteTextNodesRecursive(where) {
   let number = 0
 
   let child = children[number]
-  if( child.nodeType == 3 ) {
+  console.log(children.length, number, child)
+  if( number < children.length  ) {
+    if( child.nodeType == 3 ) {
     where.removeChild(child)
-    number += 1
     deleteTextNodesRecursive(where)
+    }
+    number++
+  deleteTextNodesRecursive(where)
   }
   return children
 }
