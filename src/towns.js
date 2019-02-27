@@ -37,7 +37,30 @@ const homeworkContainer = document.querySelector('#homework-container');
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
 function loadTowns() {
+  let response = fetch('https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json')
+      .then((response) => {
+        if(response) {
+          loadingBlock.style.display = 'none'
+          filterBlock.style.display = 'block'
+          return response.json()
+        }
+      })
+      .then((city) => {
+        city.sort((a,b) => {
+          if (a.name > b.name) {
+            return 1
+          } else if (a.name < b.name) {
+            return -1
+          } else {
+            return 0
+          }
+        })
+          return city
+      })
+  return response
+
 }
+loadTowns().then((city) => console.log(city))
 
 /*
  Функция должна проверять встречается ли подстрока chunk в строке full
@@ -51,8 +74,29 @@ function loadTowns() {
    isMatching('Moscow', 'Moscov') // false
  */
 function isMatching(full, chunk) {
-}
+  // let town = loadTowns()
+  //     .then((cities) => {
+  //       for (let city of cities ) {
+  //         console.log(city)
+  //       }
+  //     })
+  let result = full.toUpperCase().includes(chunk.toUpperCase())
+  // console.log(result)
+  return result
 
+    // let result = ''
+
+    // for( let c = 0; c < chunk.length; c++ ) {
+    //   if(full.indexOf([chunk[c]])) {
+    //     result += chunk[c]
+    //   }
+    // }
+    // console.log(result)
+
+
+  // console.log(full.toUpperCase() == chunk.toUpperCase())
+}
+isMatching('Moscow', 'SCO')
 /* Блок с надписью "Загрузка" */
 const loadingBlock = homeworkContainer.querySelector('#loading-block');
 /* Блок с текстовым полем и результатом поиска */
@@ -64,6 +108,21 @@ const filterResult = homeworkContainer.querySelector('#filter-result');
 
 filterInput.addEventListener('keyup', function() {
     // это обработчик нажатия кливиш в текстовом поле
+    let val = this.value
+      let result = ''
+      loadTowns()
+      .then((cities) => {
+        for (let city of cities ) {
+          // console.log(isMatching(city.name, val))
+              if ( isMatching(city.name, val) ) {
+                result += city.name
+                console.log(city.name)
+              }
+
+        }
+      })
+      console.log(result)
+
 });
 
 export {
