@@ -112,19 +112,24 @@ filterInput.addEventListener('keyup', function() {
       let result = ''
       loadTowns()
       .then((cities) => {
-        for (let city of cities ) {
-          // console.log(isMatching(city.name, val))
-              if ( isMatching(city.name, val) ) {
-                result += city.name
-                console.log(city.name)
+        let citiesLength = cities.length
+        console.log(cities[0])
+
+        for (let i = 0; i <  citiesLength; i++) {
+          
+              if ( isMatching(cities[i].name, val) ) {
+                let li = document.createElement('li')
+                li.innerText = cities[i].name
+                
+                filterResult.innerHTML = ''
+                filterResult.appendChild(li)
               }
 
         }
       })
-      console.log(result)
+      // console.log(result)
 
 });
-
 export {
     loadTowns,
     isMatching
