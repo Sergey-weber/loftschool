@@ -37,30 +37,33 @@ const homeworkContainer = document.querySelector('#homework-container');
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
 function loadTowns() {
-  let response = fetch('https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json')
-      .then((response) => {
-        if(response) {
-          loadingBlock.style.display = 'none'
-          filterBlock.style.display = 'block'
-          return response.json()
-        }
-      })
-      .then((city) => {
-        city.sort((a,b) => {
-          if (a.name > b.name) {
-            return 1
-          } else if (a.name < b.name) {
-            return -1
-          } else {
-            return 0
-          }
+    let response = fetch('https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json')
+
+        .then((response) => {
+            if (response) {
+                loadingBlock.style.display = 'none'
+                filterBlock.style.display = 'block'
+
+                return response.json()
+            }
         })
-          return city
-      })
-  return response
+        .then((city) => {
+            city.sort((a, b) => {
+                if (a.name > b.name) {
+                    return 1
+                } else if (a.name < b.name) {
+                    return -1
+                } 
+
+                return 0
+            })
+
+            return city
+        })
+
+    return response
 
 }
-loadTowns().then((city) => console.log(city))
 
 /*
  Функция должна проверять встречается ли подстрока chunk в строке full
@@ -74,28 +77,11 @@ loadTowns().then((city) => console.log(city))
    isMatching('Moscow', 'Moscov') // false
  */
 function isMatching(full, chunk) {
-  // let town = loadTowns()
-  //     .then((cities) => {
-  //       for (let city of cities ) {
-  //         console.log(city)
-  //       }
-  //     })
-  let result = full.toUpperCase().includes(chunk.toUpperCase())
-  // console.log(result)
-  return result
+    let result = full.toUpperCase().includes(chunk.toUpperCase())
 
-    // let result = ''
-
-    // for( let c = 0; c < chunk.length; c++ ) {
-    //   if(full.indexOf([chunk[c]])) {
-    //     result += chunk[c]
-    //   }
-    // }
-    // console.log(result)
-
-
-  // console.log(full.toUpperCase() == chunk.toUpperCase())
+    return result
 }
+
 isMatching('Moscow', 'SCO')
 /* Блок с надписью "Загрузка" */
 const loadingBlock = homeworkContainer.querySelector('#loading-block');
@@ -108,27 +94,27 @@ const filterResult = homeworkContainer.querySelector('#filter-result');
 
 filterInput.addEventListener('keyup', function() {
     // это обработчик нажатия кливиш в текстовом поле
-    let val = this.value
-      let result = ''
-      loadTowns()
-      .then((cities) => {
-        let citiesLength = cities.length
-        console.log(cities[0])
+    filterResult.innerHTML = ''
+    let result = []
 
-        for (let i = 0; i <  citiesLength; i++) {
-          
-              if ( isMatching(cities[i].name, val) ) {
-                let li = document.createElement('li')
-                li.innerText = cities[i].name
-                
-                filterResult.innerHTML = ''
-                filterResult.appendChild(li)
-              }
+    loadTowns()
+        .then((cities) => {
+            let cityLength = cities.length
 
-        }
-      })
-      // console.log(result)
+            for (let i = 0; i < cityLength; i++) {
+                if ( isMatching(cities[i].name, this.value) && this.value !== '' ) {
+                    const newDiv = document.createElement('div');
 
+                    newDiv.innerText = cities[i].name
+
+                    filterResult.appendChild(newDiv);
+                    result.push(cities[i].name)
+                }
+
+            }
+        })
+
+    return result
 });
 export {
     loadTowns,
