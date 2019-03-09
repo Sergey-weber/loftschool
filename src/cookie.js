@@ -132,8 +132,6 @@ function deleteCookie(cookie_name, el) {
 
         setCookie()
 
-        addNameInput.value = ''
-        addValueInput.value = ''
     }
 
 
