@@ -1,4 +1,4 @@
-import { loadAndSortTowns as massiveTown } from './index';
+import { loadAndSortTowns as sortTown } from './index';
 /*
  Страница должна предварительно загрузить список городов из
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
@@ -38,7 +38,7 @@ const homeworkContainer = document.querySelector('#homework-container');
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
 function loadTowns() {
-    const load = massiveTown()
+    const load = sortTown()
 
     load
         .then((response) => {
