@@ -1,3 +1,4 @@
+import { loadAndSortTowns } from './index';
 /*
  Страница должна предварительно загрузить список городов из
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
@@ -37,34 +38,21 @@ const homeworkContainer = document.querySelector('#homework-container');
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
 function loadTowns() {
-    let response = fetch('https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json')
+    const load = loadAndSortTowns()
 
+    load
         .then((response) => {
             if (response) {
                 loadingBlock.style.display = 'none'
                 filterBlock.style.display = 'block'
-
-                return response.json()
             }
         })
-        .then((city) => {
-            city.sort((a, b) => {
-                if (a.name > b.name) {
-                    return 1
-                } else if (a.name < b.name) {
-                    return -1
-                } 
 
-                return 0
-            })
-
-            return city
-        })
-
-    return response
+    return load
 
 }
 
+loadTowns().then((city) => city)
 /*
  Функция должна проверять встречается ли подстрока chunk в строке full
  Проверка должна происходить без учета регистра символов
@@ -82,7 +70,6 @@ function isMatching(full, chunk) {
     return result
 }
 
-isMatching('Moscow', 'SCO')
 /* Блок с надписью "Загрузка" */
 const loadingBlock = homeworkContainer.querySelector('#loading-block');
 /* Блок с текстовым полем и результатом поиска */
@@ -99,6 +86,7 @@ filterInput.addEventListener('keyup', function() {
 
     loadTowns()
         .then((cities) => {
+
             let cityLength = cities.length
 
             for (let i = 0; i < cityLength; i++) {
