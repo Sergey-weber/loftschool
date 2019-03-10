@@ -91,12 +91,17 @@ function setCookie() {
 
     for (let cookie of Object.keys(objCookie)) {
         if (!(isMatching(cookie, filterNameInput.value) 
-         || isMatching(objCookie[cookie], filterNameInput.value))) { 
+            || isMatching(objCookie[cookie], filterNameInput.value))) { 
             continue;
         }
-        addDoom(cookie, objCookie[cookie])  
+
+        if (objCookie[cookie]) {
+            addDoom(cookie, objCookie[cookie])  
+        }
     }
 }
+
+setCookie()
 
 filterNameInput.addEventListener('keyup', function () {
     // здесь можно обработать нажатия на клавиши внутри текстового поля для фильтрации cookie
