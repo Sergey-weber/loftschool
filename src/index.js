@@ -9,12 +9,12 @@
    delayPromise(3) // вернет promise, который будет разрешен через 3 секунды
  */
 function delayPromise(seconds) {
-    seconds = 1000;
+    let sTransform = seconds * 1000
 
     return new Promise(function (resolve) {
         setTimeout(function () {
             resolve();
-        }, seconds);
+        }, sTransform);
     });
 }
 
