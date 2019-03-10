@@ -1,4 +1,4 @@
-import { loadAndSortTowns as sortTown } from './index';
+import { loadAndSortTowns as loadTowns } from './index'
 /*
  Страница должна предварительно загрузить список городов из
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
@@ -37,20 +37,15 @@ const homeworkContainer = document.querySelector('#homework-container');
  Массив городов пожно получить отправив асинхронный запрос по адресу
  https://raw.githubusercontent.com/smelukov/citiesTest/master/cities.json
  */
-function loadTowns() {
-    const load = sortTown()
+loadTowns()
+    .then((response) => {
+        if (response) {
+            loadingBlock.style.display = 'none'
+            filterBlock.style.display = 'block'
+        }
 
-    load
-        .then((response) => {
-            if (response) {
-                loadingBlock.style.display = 'none'
-                filterBlock.style.display = 'block'
-            }
-        })
-
-    return load
-
-}
+        return response
+    })
 
 loadTowns().then((city) => city)
 /*
