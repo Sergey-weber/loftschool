@@ -1,4 +1,5 @@
-module.exports = [
+module.exports = function() {
+    return [
     {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -17,4 +18,5 @@ module.exports = [
             outputPath: 'reosurces'
         }
     }
-];
+]
+}
