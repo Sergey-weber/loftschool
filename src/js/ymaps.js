@@ -1,126 +1,143 @@
 function initMap() {
-    ymaps.ready(function () {
-        var mapCenter = [55.755381, 37.619044],
-            map = new ymaps.Map('map', {
-                center: mapCenter,
-                zoom: 9,
-                controls: []
-            });
-
-        // Создаем собственный макет с информацией о выбранном геообъекте.
-        var customItemContentLayout = ymaps.templateLayoutFactory.createClass(
-            // Флаг "raw" означает, что данные вставляют "как есть" без экранирования html.
-            '<h2 class=ballon_header>{{ properties.balloonContentHeader|raw }}</h2>' +
-            '<div class=ballon_body>{{ properties.balloonContentBody|raw }}</div>' +
-            '<div class=ballon_footer>{{ properties.balloonContentFooter|raw }}</div>'
-        );
-
-        var clusterer = new ymaps.Clusterer({
-            clusterDisableClickZoom: true,
-            clusterOpenBalloonOnClick: true,
-            // Устанавливаем стандартный макет балуна кластера "Карусель".
+    ymaps.ready(() => {
+       var myMap = new ymaps.Map('map', {
+            center: [55.76, 37.64],
+            zoom: 10
+        }, {
+            searchControlProvider: 'yandex#search'
+        }),
+        objectManager = new ymaps.ObjectManager({
+            // Чтобы метки начали кластеризоваться, выставляем опцию.
+            clusterize: true,
             clusterBalloonContentLayout: 'cluster#balloonCarousel',
-            // Устанавливаем собственный макет.
-            clusterBalloonItemContentLayout: customItemContentLayout,
-            // Устанавливаем режим открытия балуна.
-            // В данном примере балун никогда не будет открываться в режиме панели.
-            clusterBalloonPanelMaxMapArea: 0,
-            // Устанавливаем размеры макета контента балуна (в пикселях).
-            clusterBalloonContentLayoutWidth: 200,
-            clusterBalloonContentLayoutHeight: 130,
-            // Устанавливаем максимальное количество элементов в нижней панели на одной странице
-            clusterBalloonPagerSize: 5
-            // Настройка внешнего вида нижней панели.
-            // Режим marker рекомендуется использовать с небольшим количеством элементов.
-            // clusterBalloonPagerType: 'marker',
-            // Можно отключить зацикливание списка при навигации при помощи боковых стрелок.
-            // clusterBalloonCycling: false,
-            // Можно отключить отображение меню навигации.
-            // clusterBalloonPagerVisible: false
+            // ObjectManager принимает те же опции, что и кластеризатор.
+            gridSize: 32,
+            clusterDisableClickZoom: true
         });
 
-        const modalForm = document.querySelector('.form')
-        const inputModal = document.querySelectorAll('input')
-        const sendComment = document.querySelector('.send_comment')
+    // Чтобы задать опции одиночным объектам и кластерам,
+    // обратимся к дочерним коллекциям ObjectManager.
+    objectManager.objects.options.set('preset', 'islands#greenDotIcon');
+    objectManager.clusters.options.set('preset', 'islands#greenClusterIcons');
+    myMap.geoObjects.add(objectManager);
 
-        // Слушаем клик на карте.
-        map.events.add('click', function (e) {
+    let data =  []
 
-            modalForm.style.display = 'block'
+    const modalForm = document.querySelector('#modalForm'),
+          title_address = document.querySelector('.title_address a'),
+          closeModal = document.querySelector('.closeModal'),
+          fieldName = document.querySelector('.fieldName'),
+          fieldAddress = document.querySelector('.fieldAddress'),
+          fieldComment = document.querySelector('.fieldComment'),
+          sendComment = document.querySelector('.send_comment')
 
-            var coords = e.get('coords');
-            console.log(coords)
+    // data[0].asd = 'asdf'
+    let coords
 
-            var placemarks = [];
+    myMap.events.add('click', (e) => {
+        closeWindow()
+        modalForm.style.display = 'block'
+            coords = e.get('coords');
+            // console.log(e.get('target'))
 
-            sendComment.addEventListener('click', function() {
-                let send = false
 
-                for ( let i = 0; i < inputModal.length; i++ ) {
-                    inputModal[i].value !== '' ? send = true : send = false
-                }
+        geoCode().then(address => title_address.innerText = address)   
 
-                if (send) {
-                    var myPlacemark = new ymaps.Placemark(coords, {
-                        // Устаналиваем данные, которые будут отображаться в балуне.
-                        balloonContentHeader: inputModal[0].value,
-                        balloonContentBody: inputModal[1].value,
-                        balloonContentFooter: inputModal[2].value
-                    })
+        objectManager.objects.each(function (object) { 
+            console.log(objectManager.objects.balloon._collection)
+        })
+    })
 
-                    placemarks.push(myPlacemark)
+    sendComment.addEventListener('click', () => {
+        geoCode().then((address) => {
+            if ( fieldName.value !== '' ) {
+                let length = data.length
 
-                    clusterer.add(placemarks);
-                    map.geoObjects.add(clusterer);
-
-                    for ( let i = 0; i < inputModal.length; i++ ) {
-                        inputModal[i].value = ''
+                let obj = {
+                    "type": "Feature",
+                    "id": length + 1,
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": coords},
+                        "properties": {
+                            "name": fieldName.value,
+                            "balloonContentHeader": address,
+                            "balloonContentBody": fieldAddress.value,
+                            "balloonContentFooter": fieldComment.value,
+                            "clusterCaption": `<strong class="address"><a onclick="openComment(e)" class="openComment" >${address}</a></strong>`,
+                            "hintContent": `<strong><s>${address}</s></strong>`
+                        }
                     }
-                    modalForm.style.display = 'none'
 
-                } else {
-                    alert('fill in the fields')
+                    data.push(obj) 
+
+                    objectManager.removeAll();
+                    objectManager.add(data);
+                    console.log(objectManager)
+                    console.log(data)
                 }
-
             })
 
 
-        });
-        // Создание метки.
+        
+
+        
+    })
+
+    closeModal.addEventListener('click', () => closeWindow())
+
+    objectManager.objects.events.add('click', (e) => console.log(e))
+
+    function openComment(e) {
+        e.preventDefault()
+        console.log('click')
+    }
 
 
-        // Заполняем кластер геообъектами со случайными позициями.
-        // var placemarks = [];
-        // for (var i = 0, l = 10000; i < l; i++) {
-        //     var placemark = new ymaps.Placemark(getRandomPosition(), {
-        //         // Устаналиваем данные, которые будут отображаться в балуне.
-        //         balloonContentHeader: 'Метка №' + (i + 1),
-        //         balloonContentBody: getContentBody(i),
-        //         balloonContentFooter: 'Мацуо Басё'
-        //     });
-        //     placemarks.push(placemark);
-        // }
+    function geoCode(){
+        let address = ymaps.geocode(coords, {
+            results: 1
+        })
+        .then((res) => {
+           var firstGeoObject = res.geoObjects.get(0).properties._data.text
+           return  firstGeoObject
+       })
 
-        // clusterer.add(placemarks);
-        // map.geoObjects.add(clusterer);
+        return address
+    }
+
+    function closeWindow() {
+        modalForm.style.display = 'none'
+
+        fieldName.value = ''
+        fieldAddress.value = ''
+        fieldComment.value = ''
+    }
 
 
-        var placemarkBodies;
 
-        function getContentBody(num) {
-            if (!placemarkBodies) {
-                placemarkBodies = [
-                    ['Слово скажу -', 'Леденеют губы.', 'Осенний вихрь!'].join('<br/>'),
-                    ['Вновь встают с земли', 'Опущенные дождем', 'Хризантем цветы.'].join('<br/>'),
-                    ['Ты свечу зажег.', 'Словно молнии проблеск,', 'В ладонях возник.'].join('<br/>')
-                ];
-            }
-            return '<br>' + placemarkBodies[num % placemarkBodies.length];
-        }
 
-        clusterer.balloon.open(clusterer.getClusters()[0]);
-    });
-
+    // for ( let i = 0; i < 5; i++ ) {
+    //     let obj = {
+    //         "type": "Feature",
+    //     "id": i,
+    //     "geometry": {
+    //         "type": "Point",
+    //         "coordinates": [55.8319 +i+ 3, 37.4119 +i+ 1]},
+    //         "properties": {
+    //             "balloonContentHeader": "<font size=3><b><a target='_blank' href='https://yandex.ru'>Здесь может быть ваша ссылка</a></b></font>",
+    //             "balloonContentBody": "<p>Ваше имя: <input name='login'></p><p><em>Телефон в формате 2xxx-xxx:</em>  <input></p><p><input type='submit' value='Отправить'></p>",
+    //             "balloonContentFooter": "<font size=1>Информация предоставлена: </font> <strong>этим балуном</strong>",
+    //             "clusterCaption": "<strong><s>Еще</s> одна</strong> метка",
+    //             "hintContent": "<strong>Текст  <s>подсказки</s></strong>"
+    //         }
+    //     }
+    //     data[i] = obj
+    // }
+    
+    // objectManager.add(data);
+    
+})
 }
 
 export {
