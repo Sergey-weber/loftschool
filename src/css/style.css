@@ -9,6 +9,7 @@
     z-index: 999;
     display: none;
 }
+.dataList {display: none;}
 
 .closeModal {
 	position: absolute;

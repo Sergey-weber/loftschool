@@ -24,15 +24,18 @@ function initMap() {
     let data =  []
 
     const modalForm = document.querySelector('#modalForm'),
-          title_address = document.querySelector('.title_address a'),
-          closeModal = document.querySelector('.closeModal'),
-          fieldName = document.querySelector('.fieldName'),
-          fieldAddress = document.querySelector('.fieldAddress'),
-          fieldComment = document.querySelector('.fieldComment'),
-          sendComment = document.querySelector('.send_comment')
+          map = document.querySelector('#map'),
+          title_address = modalForm.querySelector('.title_address a'),
+          closeModal = modalForm.querySelector('.closeModal'),
+          fieldName = modalForm.querySelector('.fieldName'),
+          datesList = modalForm.querySelector('.dataList'),
+          fieldAddress = modalForm.querySelector('.fieldAddress'),
+          fieldComment = modalForm.querySelector('.fieldComment'),
+          sendComment = modalForm.querySelector('.send_comment')
 
     // data[0].asd = 'asdf'
-    let coords
+    let coords,
+        dataList = []
 
     myMap.events.add('click', (e) => {
         closeWindow()
@@ -49,6 +52,12 @@ function initMap() {
     })
 
     sendComment.addEventListener('click', () => {
+        addPlacemark()
+
+        
+    })
+
+    function addPlacemark() {
         geoCode().then((address) => {
             if ( fieldName.value !== '' ) {
                 let length = data.length
@@ -64,34 +73,53 @@ function initMap() {
                             "balloonContentHeader": address,
                             "balloonContentBody": fieldAddress.value,
                             "balloonContentFooter": fieldComment.value,
-                            "clusterCaption": `<strong class="address"><a onclick="openComment(e)" class="openComment" >${address}</a></strong>`,
+                            "clusterCaption": `<strong class="address"><a href class="openComment" >${address}</a></strong>`,
                             "hintContent": `<strong><s>${address}</s></strong>`
                         }
                     }
 
                     data.push(obj) 
 
+                    dataList.push(fieldName.value)
+                    dataList.push(fieldAddress.value)
+                    dataList.push(fieldComment.value)
+
+                    datesList.innerText = dataList
+
                     objectManager.removeAll();
                     objectManager.add(data);
-                    console.log(objectManager)
-                    console.log(data)
+
                 }
-            })
-
-
-        
-
-        
-    })
+            })   
+    }
 
     closeModal.addEventListener('click', () => closeWindow())
 
-    objectManager.objects.events.add('click', (e) => console.log(e))
+      myMap.geoObjects.events.add('click', e => {
+        let target = e.get('target')._collectionComponent._childList.first.obj._data.features
 
-    function openComment(e) {
+        closeWindow()
+        // console.log(e.get('coords'))
+            console.log(target)
+        for ( let i = 0; i < target.length; i++ ) {
+            coords = target[i].geometry.coordinates 
+            console.log(coords)
+            dataList.push(target[i].properties.name)
+            dataList.push(target[i].properties.balloonContentBody)
+            dataList.push(target[i].properties.balloonContentFooter)
+            datesList.innerText = dataList
+        }
+      })
+
+      map.addEventListener('click', (e) => {
         e.preventDefault()
-        console.log('click')
-    }
+
+        if ( e.target.classList.contains('openComment') ) {
+            modalForm.style.display = 'block'
+            datesList.style.display = 'block'
+        }
+      })
+
 
 
     function geoCode(){
@@ -99,7 +127,7 @@ function initMap() {
             results: 1
         })
         .then((res) => {
-           var firstGeoObject = res.geoObjects.get(0).properties._data.text
+           var firstGeoObject = res.geoObjects.get(0).properties.get('text')
            return  firstGeoObject
        })
 
@@ -113,29 +141,6 @@ function initMap() {
         fieldAddress.value = ''
         fieldComment.value = ''
     }
-
-
-
-
-    // for ( let i = 0; i < 5; i++ ) {
-    //     let obj = {
-    //         "type": "Feature",
-    //     "id": i,
-    //     "geometry": {
-    //         "type": "Point",
-    //         "coordinates": [55.8319 +i+ 3, 37.4119 +i+ 1]},
-    //         "properties": {
-    //             "balloonContentHeader": "<font size=3><b><a target='_blank' href='https://yandex.ru'>Здесь может быть ваша ссылка</a></b></font>",
-    //             "balloonContentBody": "<p>Ваше имя: <input name='login'></p><p><em>Телефон в формате 2xxx-xxx:</em>  <input></p><p><input type='submit' value='Отправить'></p>",
-    //             "balloonContentFooter": "<font size=1>Информация предоставлена: </font> <strong>этим балуном</strong>",
-    //             "clusterCaption": "<strong><s>Еще</s> одна</strong> метка",
-    //             "hintContent": "<strong>Текст  <s>подсказки</s></strong>"
-    //         }
-    //     }
-    //     data[i] = obj
-    // }
-    
-    // objectManager.add(data);
     
 })
 }
