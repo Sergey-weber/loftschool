@@ -33,14 +33,18 @@ function initMap() {
           fieldComment = modalForm.querySelector('.fieldComment'),
           sendComment = modalForm.querySelector('.send_comment')
 
-    // data[0].asd = 'asdf'
     let coords,
         dataList = []
 
     myMap.events.add('click', (e) => {
         closeWindow()
+        dataList.length = 0
+        datesList.innerText = ''
         modalForm.style.display = 'block'
             coords = e.get('coords');
+            console.log(coords)
+            let clientCoords = e.getSourceEvent().originalEvent.clientPixels;
+            console.log(`clientCoords: ${clientCoords}`)
             // console.log(e.get('target'))
 
 
@@ -52,14 +56,12 @@ function initMap() {
     })
 
     sendComment.addEventListener('click', () => {
-        addPlacemark()
-
-        
+        addPlacemark()        
     })
 
     function addPlacemark() {
         geoCode().then((address) => {
-            if ( fieldName.value !== '' ) {
+            if ( fieldName.value !== '' && fieldAddress.value !== '' && fieldComment.value !== '' ) {
                 let length = data.length
 
                 let obj = {
@@ -80,43 +82,38 @@ function initMap() {
 
                     data.push(obj) 
 
-                    dataList.push(fieldName.value)
-                    dataList.push(fieldAddress.value)
-                    dataList.push(fieldComment.value)
-
-                    datesList.innerText = dataList
-
                     objectManager.removeAll();
                     objectManager.add(data);
 
+                } else {
+                    alert('Fill in the fields')
                 }
             })   
     }
 
     closeModal.addEventListener('click', () => closeWindow())
 
-      myMap.geoObjects.events.add('click', e => {
-        let target = e.get('target')._collectionComponent._childList.first.obj._data.features
-
-        closeWindow()
-        // console.log(e.get('coords'))
-            console.log(target)
-        for ( let i = 0; i < target.length; i++ ) {
-            coords = target[i].geometry.coordinates 
-            console.log(coords)
-            dataList.push(target[i].properties.name)
-            dataList.push(target[i].properties.balloonContentBody)
-            dataList.push(target[i].properties.balloonContentFooter)
-            datesList.innerText = dataList
-        }
-      })
-
-      map.addEventListener('click', (e) => {
+      map.addEventListener('click', e => {
         e.preventDefault()
 
         if ( e.target.classList.contains('openComment') ) {
+            console.log(e.target)
+            datesList.innerText = ''
+            dataList.length = 0
             modalForm.style.display = 'block'
             datesList.style.display = 'block'
+
+            var txt = e.target.textContent || e.target.innerText
+
+            for ( let i = 0; i < data.length; i++ ) {
+                if ( data[i].properties.balloonContentHeader == txt ) {
+                    console.log(data[i])
+                    dataList.push(data[i].properties.name)
+                    dataList.push(data[i].properties.balloonContentBody)
+                    dataList.push(data[i].properties.balloonContentFooter)
+                    datesList.innerText = dataList
+                }
+            }
         }
       })
 
