@@ -1,16 +1,33 @@
 #modalForm {
     position: absolute;
     width: 300px;
-    height: 400px;
+    height: 450px;
     top: calc(50% - 200px);
     left: 250px;
-    padding: 30px;
     background-color: #fff;
     z-index: 999;
     display: none;
+    border-radius: 5px;
 }
-.dataList {display: none;}
-
+.content_form {padding: 10px;}
+.dataList {
+	display: none;
+	overflow-y: auto;
+	margin-bottom: 50px;
+}
+.title_address {
+	background-color: #f98562;
+	padding: 5px;
+	height: 30px;
+	margin: 0;
+	padding: 10px;
+}
+.title_address a {
+	color: #fff;
+	font-size: 12px;
+	display: inline-block;
+	max-width: 250px;
+}
 .closeModal {
 	position: absolute;
 	right: 15px;
@@ -18,4 +35,27 @@
 	font-size: 25px;
 	font-weight: bold;
 	cursor: pointer;
+	color: #fff;
+}
+.your_comment {
+	text-transform: uppercase;
+	color: #ff8663;
+	margin: 0;
+}
+.fieldName {margin-top: 0;}
+.fieldName, .fieldAddress, .fieldComment {
+	height: 30px;
+    border-radius: 15px;
+    width: 220px;
+    border: 1px solid #a5a1a1;
+    margin: 10px 0;
+    padding: 0 10px;
+}
+.fieldComment {height: 100px; padding: 10px;}
+.send_comment {
+	background-color: #ff8663;
+	color: #fff;
+	border-radius: 10px;
+	padding: 10px 15px;
+	border: none;
 }
