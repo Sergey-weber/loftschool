@@ -22,7 +22,7 @@ function initMap() {
         iconLayout: 'default#image',
         iconImageHref: '../src/img/marker.png',
     });
-    objectManager.clusters.options.set('preset', 'islands#greenClusterIcons');
+    objectManager.clusters.options.set('preset', 'islands#greyClusterIcons');
     myMap.geoObjects.add(objectManager);
 
      objectManager.objects.events.add('click', e => {
@@ -52,6 +52,10 @@ function initMap() {
     //         function setRedColor (objectId) {    objectManager.objects.setClusterOptions(objectId, {        preset: 'islands#redIcon'    });}
 
     let data =  []
+    let storage = localStorage
+        data = JSON.parse(storage.data || [])
+
+        objectManager.add(data);
 
     const modalForm = document.querySelector('#modalForm'),
           map = document.querySelector('#map'),
@@ -76,8 +80,8 @@ function initMap() {
         let clientCoords = e.getSourceEvent().originalEvent.clientPixels;
         console.log(`clientCoords: ${clientCoords}`)
 
-        modalForm.style.top = clientCoords[1] + 'px'
-        modalForm.style.left = clientCoords[0] + 'px'
+        modalForm.style.top = clientCoords[1] + 50 + 'px'
+        modalForm.style.left = clientCoords[0] + 50 + 'px'
 
 
             geoCode().then(address => title_address.innerText = address)   
@@ -99,7 +103,9 @@ function initMap() {
     })
 
     function addPlacemark() {
+    
         var formated_date = new Date().toISOString().slice(0, 10)
+        
 
         geoCode().then((address) => {
             let length = data.length
@@ -123,7 +129,9 @@ function initMap() {
                 data.push(obj) 
                 objectManager.removeAll();
                 objectManager.add(data);
-            })   
+
+                storage.data = JSON.stringify(data)
+            }) 
         
     }
 
