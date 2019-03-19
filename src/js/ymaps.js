@@ -1,12 +1,12 @@
 function initMap() {
     ymaps.ready(() => {
-       var myMap = new ymaps.Map('map', {
-            center: [55.76, 37.64],
-            zoom: 10
-        }, {
-            searchControlProvider: 'yandex#search'
-        }),
-        objectManager = new ymaps.ObjectManager({
+     var myMap = new ymaps.Map('map', {
+        center: [55.76, 37.64],
+        zoom: 10
+    }, {
+        searchControlProvider: 'yandex#search'
+    }),
+     objectManager = new ymaps.ObjectManager({
             // Чтобы метки начали кластеризоваться, выставляем опцию.
             clusterize: true,
             clusterBalloonContentLayout: 'cluster#balloonCarousel',
@@ -17,9 +17,39 @@ function initMap() {
 
     // Чтобы задать опции одиночным объектам и кластерам,
     // обратимся к дочерним коллекциям ObjectManager.
-    objectManager.objects.options.set('preset', 'islands#greenDotIcon');
+    objectManager.objects.options.set({
+        preset : 'islands#greenDotIcon',
+        iconLayout: 'default#image',
+        iconImageHref: '../src/img/marker.png',
+    });
     objectManager.clusters.options.set('preset', 'islands#greenClusterIcons');
     myMap.geoObjects.add(objectManager);
+
+     objectManager.objects.events.add('click', e => {
+        coords = e.get('coords')
+     })
+
+     objectManager.clusters.events.add('click', e => {
+        coords = e.get('coords')
+     })
+
+
+    // objectManager.objects.events.add('mouseenter',
+    //  function (e) {
+    //      var objectId = e.get('objectId'),
+    //      overlay = objectManager.objects.overlays.getById(objectId);
+    //     setRedColor(objectId);
+    //     overlay.events.add('mapchange', setGreenColor);});
+    //     objectManager.objects.events.add('mouseleave',
+    //      function (e) {
+    //          var objectId = e.get('objectId'),
+    //         overlay = objectManager.objects.overlays.getById(objectId);
+    //         setGreenColor(objectId);
+    //         overlay.events.remove('mapchange', setGreenColor);});
+    //     function setGreenColor (objectId) {
+    //         objectManager.objects.setObjectOptions(objectId, 
+    //             {        preset: 'islands#greenIcon'    });}
+    //         function setRedColor (objectId) {    objectManager.objects.setClusterOptions(objectId, {        preset: 'islands#redIcon'    });}
 
     let data =  []
 
@@ -34,91 +64,85 @@ function initMap() {
           sendComment = modalForm.querySelector('.send_comment')
 
     let coords,
-        dataList = []
+    dataList = []
 
     myMap.events.add('click', (e) => {
         closeWindow()
         clearDataList()
 
         modalForm.style.display = 'block'
-            coords = e.get('coords');
-            console.log(coords)
-            let clientCoords = e.getSourceEvent().originalEvent.clientPixels;
-            console.log(`clientCoords: ${clientCoords}`)
-            // console.log(e.get('target'))
+        coords = e.get('coords');
+        console.log(coords)
+        let clientCoords = e.getSourceEvent().originalEvent.clientPixels;
+        console.log(`clientCoords: ${clientCoords}`)
+
+        modalForm.style.top = clientCoords[1] + 'px'
+        modalForm.style.left = clientCoords[0] + 'px'
 
 
-        geoCode().then(address => title_address.innerText = address)   
+            geoCode().then(address => title_address.innerText = address)   
 
-        objectManager.objects.each(function (object) { 
-            console.log(objectManager.objects.balloon._collection)
+            objectManager.objects.each(function (object) { 
+                console.log(objectManager.objects.balloon._collection)
+            })
         })
-    })
 
     sendComment.addEventListener('click', () => {
-        addPlacemark()
-        datesList.style.display = 'block'
-        datesList.appendChild(addDataList(fieldName.value, fieldAddress.value, fieldComment.value))    
-    })
-
-    function addPlacemark() {
         if ( fieldName.value !== '' && fieldAddress.value !== '' && fieldComment.value !== '' ) {
 
-            var formated_date = new Date().toISOString().slice(0, 10)
-            geoCode().then((address) => {
-                let length = data.length
-                let obj = {
-                    "type": "Feature",
-                    "id": length + 1,
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": coords},
-                        "properties": {
-                            "name": fieldName.value,
-                            "balloonContentHeader": `<strong class="address"><a href class="openComment" >${address}</a></strong>`,
-                            "balloonContentBody": `<span class="writeAddress">${fieldAddress.value} <span class="date">${formated_date}</span></span>`,
-                            "balloonContentFooter": fieldComment.value,
-                            "clusterCaption": `<strong class="address"><a href class="openComment" >${address}</a></strong>`,
-                            "hintContent": address
-                        }
-                    }
+            addPlacemark()
+            datesList.appendChild(addDataList(fieldName.value, fieldAddress.value, fieldComment.value))    
 
-                    data.push(obj) 
-
-                    objectManager.removeAll();
-                    objectManager.add(data);
-
-                })   
         } else {
             alert('Fill in the fields')
         }
+    })
+
+    function addPlacemark() {
+        var formated_date = new Date().toISOString().slice(0, 10)
+
+        geoCode().then((address) => {
+            let length = data.length
+            let obj = {
+                "type": "Feature",
+                "id": length + 1,
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": coords},
+                    "properties": {
+                        "name": fieldName.value,
+                        "iconLayout": 'default#image',
+                        "balloonContentHeader": `<strong class="address"><a href class="openComment" >${address}</a></strong>`,
+                        "balloonContentBody": `<span class="writeAddress">${fieldAddress.value} <span class="date">${formated_date}</span></span>`,
+                        "balloonContentFooter": fieldComment.value,
+                        "clusterCaption": `<strong class="address"><a href class="openComment" >${address}</a></strong>`,
+                        "hintContent": address
+                    }
+                }
+
+                data.push(obj) 
+                objectManager.removeAll();
+                objectManager.add(data);
+            })   
+        
     }
 
 
 
     closeModal.addEventListener('click', () => closeWindow())
 
-      map.addEventListener('click', e => {
+    map.addEventListener('click', e => {
         e.preventDefault()
-        console.log(data)
 
         if ( e.target.classList.contains('openComment') ) {
-            console.log(e.target)
             clearDataList()
             modalForm.style.display = 'block'
-            datesList.style.display = 'block'
 
             var txt = e.target.textContent || e.target.innerText
 
             for ( let i = 0; i < data.length; i++ ) {
-                console.log('data i ' + data[i].properties.hintContent)
-                console.log('txt ' + txt)
                 if ( data[i].properties.hintContent == txt ) {
-                    console.log('yesss')
-                    dataList.push(data[i].properties.name)
-                    dataList.push(data[i].properties.balloonContentBody)
-                    dataList.push(data[i].properties.balloonContentFooter)
-                    // datesList.innerHTML = dataList
+                    coords = data[i].geometry.coordinates
 
                     datesList.appendChild(
                         addDataList(
@@ -130,30 +154,30 @@ function initMap() {
                 }
             }
         }
-      })
+    })
 
     function addDataList(nameArg, addressArg, commentArg) {
         let nameVal = document.createElement('span')
-            nameVal.innerText = nameArg || ''
+        nameVal.innerHTML = nameArg || ''
 
         let addressVal = document.createElement('span')
-            addressVal.innerText = addressArg || ''
+        addressVal.innerHTML = addressArg || ''
 
         let dateVal = document.createElement('span')
-            dateVal.innerText = new Date().toISOString().slice(0, 10)
+        dateVal.innerHTML = new Date().toISOString().slice(0, 10)
 
         let commentVal = document.createElement('div')
-            commentVal.innerText = commentArg || ''
+        commentVal.innerHTML = commentArg || ''
 
         let p = document.createElement('p')
-            p.classList.add('nameAddress')
-            p.appendChild(nameVal)
-            p.appendChild(addressVal)
-            p.appendChild(dateVal)
+        p.classList.add('nameAddress')
+        p.appendChild(nameVal)
+        p.appendChild(addressVal)
+        p.appendChild(dateVal)
 
         let wrap = document.createElement('div')
-            wrap.appendChild(p)
-            wrap.appendChild(commentVal)
+        wrap.appendChild(p)
+        wrap.appendChild(commentVal)
 
         return wrap
     }
@@ -169,9 +193,9 @@ function initMap() {
             results: 1
         })
         .then((res) => {
-           var firstGeoObject = res.geoObjects.get(0).properties.get('text')
-           return  firstGeoObject
-       })
+         var firstGeoObject = res.geoObjects.get(0).properties.get('text')
+         return  firstGeoObject
+     })
 
         return address
     }
@@ -183,8 +207,8 @@ function initMap() {
         fieldAddress.value = ''
         fieldComment.value = ''
         clearDataList()
-    }
-    
+    }  
+
 })
 }
 
