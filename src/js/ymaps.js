@@ -32,12 +32,11 @@ function initMap() {
 
             var objectId = e.get('objectId'),
                 overlay = objectManager.objects.overlays.getById(objectId);
-            console.log(overlay)
-
-            console.log(objectManager.objects.getById(e.get("objectId")).properties.type)
+                console.log(overlay.options._options)
 
            
-            e.get('target').options.set('iconImageHref', '../src/img/markerActive.png');
+            e.get('target').options.set('iconImageHref', '../src/img/marker.png');
+                overlay.options.set('iconImageHref', '../src/img/markerActive.png');
 
             clearDataList()
             noReviews.style.display = 'none'
@@ -73,23 +72,6 @@ function initMap() {
      })
 
 
-    // objectManager.objects.events.add('mouseenter',
-    //  function (e) {
-    //      var objectId = e.get('objectId'),
-    //      overlay = objectManager.objects.overlays.getById(objectId);
-    //     setRedColor(objectId);
-    //     overlay.events.add('mapchange', setGreenColor);});
-    //     objectManager.objects.events.add('mouseleave',
-    //      function (e) {
-    //          var objectId = e.get('objectId'),
-    //         overlay = objectManager.objects.overlays.getById(objectId);
-    //         setGreenColor(objectId);
-    //         overlay.events.remove('mapchange', setGreenColor);});
-    //     function setGreenColor (objectId) {
-    //         objectManager.objects.setObjectOptions(objectId, 
-    //             {        preset: 'islands#greenIcon'    });}
-    //         function setRedColor (objectId) {    objectManager.objects.setObjectOptions(objectId, {        preset: 'islands#redIcon'    });}
-
     let storage = localStorage
     let data = storage.data ? JSON.parse(storage.data) : []
 
@@ -122,8 +104,17 @@ function initMap() {
         let clientCoords = e.getSourceEvent().originalEvent.clientPixels;
         console.log(`clientCoords: ${clientCoords}`)
 
-        modalForm.style.top = clientCoords[1] + 50 + 'px'
-        modalForm.style.left = clientCoords[0] + 50 + 'px'
+        if ( clientCoords[0] > window.innerWidth / 2  ) {
+            modalForm.style.left = clientCoords[0] - 429 + 'px'
+        } else {
+             modalForm.style.left = clientCoords[0] + 50 + 'px'
+        }
+        if ( clientCoords[1] > window.innerHeight / 2  ) {
+            modalForm.style.top = clientCoords[1] - 550 + 'px'
+        } else {
+            modalForm.style.top = clientCoords[1] + 50 + 'px'
+        }
+        console.log()
 
 
             geoCode().then(address => title_address.innerText = address)   

@@ -13,7 +13,6 @@ body {overflow: hidden;}
 .content_form {padding: 10px;}
 .dataList {
 	overflow-y: auto;
-	margin-bottom: 30px;
 	height: 136px;
 }
 .nameAddress span {
