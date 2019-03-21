@@ -11,7 +11,7 @@ function initMap() {
             clusterize: true,
             clusterBalloonContentLayout: 'cluster#balloonCarousel',
             // ObjectManager принимает те же опции, что и кластеризатор.
-            gridSize: 32,
+            gridSize: 152,
             clusterDisableClickZoom: true
         });
 
@@ -19,6 +19,7 @@ function initMap() {
     // обратимся к дочерним коллекциям ObjectManager.
     objectManager.objects.options.set({
         preset : 'islands#greenDotIcon',
+        hasBalloon : false,
         iconLayout: 'default#image',
         iconImageHref: '../src/img/marker.png',
     });
@@ -26,7 +27,45 @@ function initMap() {
     myMap.geoObjects.add(objectManager);
 
      objectManager.objects.events.add('click', e => {
-        coords = e.get('coords')
+        let hint =  e.get('target')._collectionComponent._childList.first.obj._data.properties.hintContent
+            coords = e.get('coords')
+
+            var objectId = e.get('objectId'),
+                overlay = objectManager.objects.overlays.getById(objectId);
+            console.log(overlay)
+
+            console.log(objectManager.objects.getById(e.get("objectId")).properties.type)
+
+           
+            e.get('target').options.set('iconImageHref', '../src/img/markerActive.png');
+
+            clearDataList()
+            noReviews.style.display = 'none'
+            modalForm.style.display = 'block'
+
+    
+
+            for ( let i = 0; i < data.length; i++ ) {
+
+                if ( data[i].properties.hintContent == overlay._data.properties.hintContent ) {
+                    console.log(true)
+                    // coords = data[i].geometry.coordinates
+                    console.log(`data: ${data[i].properties.hintContent} - target ${hint}`)
+
+                    title_address.innerText = data[i].properties.hintContent
+
+                    datesList.appendChild(
+                        addDataList(
+                            data[i].properties.name,
+                            data[i].properties.balloonContentBody,
+                            data[i].properties.balloonContentFooter,
+                            data[i].properties.createDate
+                            )
+                        )
+                }
+            }
+          
+        
      })
 
      objectManager.clusters.events.add('click', e => {
@@ -49,17 +88,18 @@ function initMap() {
     //     function setGreenColor (objectId) {
     //         objectManager.objects.setObjectOptions(objectId, 
     //             {        preset: 'islands#greenIcon'    });}
-    //         function setRedColor (objectId) {    objectManager.objects.setClusterOptions(objectId, {        preset: 'islands#redIcon'    });}
+    //         function setRedColor (objectId) {    objectManager.objects.setObjectOptions(objectId, {        preset: 'islands#redIcon'    });}
 
-    let data =  []
     let storage = localStorage
-        data = JSON.parse(storage.data || [])
+    let data = storage.data ? JSON.parse(storage.data) : []
+
 
         objectManager.add(data);
 
     const modalForm = document.querySelector('#modalForm'),
           map = document.querySelector('#map'),
           title_address = modalForm.querySelector('.title_address a'),
+          noReviews = modalForm.querySelector('.noReviews'),
           closeModal = modalForm.querySelector('.closeModal'),
           fieldName = modalForm.querySelector('.fieldName'),
           datesList = modalForm.querySelector('.dataList'),
@@ -74,6 +114,8 @@ function initMap() {
         closeWindow()
         clearDataList()
 
+        noReviews.style.display = 'block'
+
         modalForm.style.display = 'block'
         coords = e.get('coords');
         console.log(coords)
@@ -87,25 +129,37 @@ function initMap() {
             geoCode().then(address => title_address.innerText = address)   
 
             objectManager.objects.each(function (object) { 
-                console.log(objectManager.objects.balloon._collection)
+                // console.log(objectManager.objects.balloon._collection)
+                objectManager.objects.options.set('iconImageHref', '../src/img/marker.png');
             })
         })
 
     sendComment.addEventListener('click', () => {
         if ( fieldName.value !== '' && fieldAddress.value !== '' && fieldComment.value !== '' ) {
-
+            noReviews.style.display = 'none'
             addPlacemark()
-            datesList.appendChild(addDataList(fieldName.value, fieldAddress.value, fieldComment.value))    
+            datesList.appendChild(addDataList(fieldName.value, fieldAddress.value, fieldComment.value, currentDate()))    
 
         } else {
             alert('Fill in the fields')
         }
     })
 
-    function addPlacemark() {
+    function currentDate() {
+        let Data = new Date(),
+            Year = Data.getFullYear(),
+            Month = Data.getMonth(),
+            Day = Data.getDate(),
+            Hour = Data.getHours(),
+            Minutes = Data.getMinutes(),
+            Seconds = Data.getSeconds()
     
-        var formated_date = new Date().toISOString().slice(0, 10)
-        
+        let formated_date = `${Year}.${Month}.${Day} ${Hour}:${Minutes}:${Seconds}`
+
+        return formated_date
+    }
+
+    function addPlacemark() {
 
         geoCode().then((address) => {
             let length = data.length
@@ -119,10 +173,11 @@ function initMap() {
                         "name": fieldName.value,
                         "iconLayout": 'default#image',
                         "balloonContentHeader": `<strong class="address"><a href class="openComment" >${address}</a></strong>`,
-                        "balloonContentBody": `<span class="writeAddress">${fieldAddress.value} <span class="date">${formated_date}</span></span>`,
+                        "balloonContentBody": `<span class="writeAddress">${fieldAddress.value} <span class="date">${currentDate()}</span></span>`,
                         "balloonContentFooter": fieldComment.value,
                         "clusterCaption": `<strong class="address"><a href class="openComment" >${address}</a></strong>`,
-                        "hintContent": address
+                        "hintContent": address,
+                        "createDate": currentDate()
                     }
                 }
 
@@ -144,6 +199,7 @@ function initMap() {
 
         if ( e.target.classList.contains('openComment') ) {
             clearDataList()
+            noReviews.style.display = 'none'
             modalForm.style.display = 'block'
 
             var txt = e.target.textContent || e.target.innerText
@@ -151,12 +207,14 @@ function initMap() {
             for ( let i = 0; i < data.length; i++ ) {
                 if ( data[i].properties.hintContent == txt ) {
                     coords = data[i].geometry.coordinates
+                    title_address.innerText = data[i].properties.hintContent
 
                     datesList.appendChild(
                         addDataList(
                             data[i].properties.name,
                             data[i].properties.balloonContentBody,
-                            data[i].properties.balloonContentFooter
+                            data[i].properties.balloonContentFooter,
+                            data[i].properties.createDate
                             )
                         )
                 }
@@ -164,7 +222,7 @@ function initMap() {
         }
     })
 
-    function addDataList(nameArg, addressArg, commentArg) {
+    function addDataList(nameArg, addressArg, commentArg, createDate) {
         let nameVal = document.createElement('span')
         nameVal.innerHTML = nameArg || ''
 
@@ -172,7 +230,7 @@ function initMap() {
         addressVal.innerHTML = addressArg || ''
 
         let dateVal = document.createElement('span')
-        dateVal.innerHTML = new Date().toISOString().slice(0, 10)
+        dateVal.innerHTML = createDate
 
         let commentVal = document.createElement('div')
         commentVal.innerHTML = commentArg || ''
@@ -207,6 +265,7 @@ function initMap() {
 
         return address
     }
+
 
     function closeWindow() {
         modalForm.style.display = 'none'

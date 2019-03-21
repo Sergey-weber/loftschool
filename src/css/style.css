@@ -1,3 +1,4 @@
+body {overflow: hidden;}
 #modalForm {
     position: absolute;
     width: 379px;
@@ -23,6 +24,10 @@
 .nameAddress span:nth-child(1) {font-weight: bold; margin-left: 0; color: #000}
 .nameAddress span.date {display: none;}
 .nameAddress span.writeAddress {font-weight: 100;}
+.noReviews {
+	font-size: 16px;
+	margin: 0;
+}
 .title_address {
 	background-color: #f98562;
 	padding: 5px;
