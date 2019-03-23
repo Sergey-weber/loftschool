@@ -1,0 +1,74 @@
+body {overflow: hidden;}
+#modalForm {
+    position: absolute;
+    width: 379px;
+    height: 550px;
+    top: calc(50% - 275px);
+    left: 250px;
+    background-color: #fff;
+    z-index: 999;
+    display: none;
+    border-radius: 5px;
+}
+.content_form {padding: 10px;}
+.dataList {
+	overflow-y: auto;
+	height: 136px;
+}
+.nameAddress span {
+	display: inline-block;
+	margin: 0 3px;
+	color: #4f4f4f;
+}
+.nameAddress span:nth-child(1) {font-weight: bold; margin-left: 0; color: #000}
+.nameAddress span.date {display: none;}
+.nameAddress span.writeAddress {font-weight: 100;}
+.noReviews {
+	font-size: 16px;
+	margin: 0;
+}
+.title_address {
+	background-color: #f98562;
+	padding: 5px;
+	height: auto;
+	margin: 0;
+	padding: 10px;
+	border-radius: 5px;
+}
+.title_address img {margin-right: 7px; margin-bottom: 6px;}
+.title_address a {
+	color: #fff;
+	font-size: 12px;
+	display: inline-block;
+	max-width: 280px;
+	text-decoration: none;
+}
+.closeModal {
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	cursor: pointer;
+}
+.your_comment {
+	text-transform: uppercase;
+	color: #ff8663;
+	margin: 0;
+}
+.fieldName {margin-top: 0;}
+.fieldName, .fieldAddress, .fieldComment {
+	height: 32px;
+    border-radius: 15px;
+    width: 328px;
+    border: 1px solid #a5a1a1;
+    margin: 10px 0;
+    padding: 0 10px;
+}
+.fieldComment {height: 100px; padding: 10px;}
+.send_comment {
+	background-color: #ff8663;
+	color: #fff;
+	border-radius: 10px;
+	padding: 10px 15px;
+	border: none;
+	margin-left: 222px;
+}
