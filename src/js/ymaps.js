@@ -1,3 +1,7 @@
+import {addDataList} from './modules/addDataList'
+import {geoCode} from './modules/geoCode'
+import {DnD} from './modules/DnD'
+
 function initMap() {
     ymaps.ready(() => {
      var myMap = new ymaps.Map('map', {
@@ -32,7 +36,6 @@ function initMap() {
 
             var objectId = e.get('objectId'),
                 overlay = objectManager.objects.overlays.getById(objectId);
-                console.log(overlay.options._options)
 
            
             e.get('target').options.set('iconImageHref', '../src/img/marker.png');
@@ -45,12 +48,7 @@ function initMap() {
     
 
             for ( let i = 0; i < data.length; i++ ) {
-
                 if ( data[i].properties.hintContent == overlay._data.properties.hintContent ) {
-                    console.log(true)
-                    // coords = data[i].geometry.coordinates
-                    console.log(`data: ${data[i].properties.hintContent} - target ${hint}`)
-
                     title_address.innerText = data[i].properties.hintContent
 
                     datesList.appendChild(
@@ -92,6 +90,8 @@ function initMap() {
     let coords,
     dataList = []
 
+    DnD(modalForm)
+
     myMap.events.add('click', (e) => {
         closeWindow()
         clearDataList()
@@ -99,33 +99,13 @@ function initMap() {
         noReviews.style.display = 'block'
 
         modalForm.style.display = 'block'
-        coords = e.get('coords');
-        console.log(coords)
-        let clientCoords = e.getSourceEvent().originalEvent.clientPixels;
-        console.log(`clientCoords: ${clientCoords}`)
+        coords = e.get('coords')
 
-        if ( clientCoords[0] > window.innerWidth / 2  ) {
-            modalForm.style.left = clientCoords[0] - 429 + 'px'
-        } else {
-             modalForm.style.left = clientCoords[0] + 50 + 'px'
-        }
-        if ( clientCoords[1] > window.innerHeight / 2  ) {
-            modalForm.style.top = clientCoords[1] - 550 + 'px'
-        } else {
-            modalForm.style.top = clientCoords[1] + 50 + 'px'
-        }
-        console.log()
-
-
-            geoCode().then(address => title_address.innerText = address)   
-
-            objectManager.objects.each(function (object) { 
-                // console.log(objectManager.objects.balloon._collection)
-                objectManager.objects.options.set('iconImageHref', '../src/img/marker.png');
-            })
+            geoCode(coords).then(address => title_address.innerText = address)   
         })
 
     sendComment.addEventListener('click', () => {
+        console.log('asd')
         if ( fieldName.value !== '' && fieldAddress.value !== '' && fieldComment.value !== '' ) {
             noReviews.style.display = 'none'
             addPlacemark()
@@ -152,7 +132,7 @@ function initMap() {
 
     function addPlacemark() {
 
-        geoCode().then((address) => {
+        geoCode(coords).then((address) => {
             let length = data.length
             let obj = {
                 "type": "Feature",
@@ -213,50 +193,12 @@ function initMap() {
         }
     })
 
-    function addDataList(nameArg, addressArg, commentArg, createDate) {
-        let nameVal = document.createElement('span')
-        nameVal.innerHTML = nameArg || ''
 
-        let addressVal = document.createElement('span')
-        addressVal.innerHTML = addressArg || ''
-
-        let dateVal = document.createElement('span')
-        dateVal.innerHTML = createDate
-
-        let commentVal = document.createElement('div')
-        commentVal.innerHTML = commentArg || ''
-
-        let p = document.createElement('p')
-        p.classList.add('nameAddress')
-        p.appendChild(nameVal)
-        p.appendChild(addressVal)
-        p.appendChild(dateVal)
-
-        let wrap = document.createElement('div')
-        wrap.appendChild(p)
-        wrap.appendChild(commentVal)
-
-        return wrap
-    }
 
     function clearDataList() {
         datesList.innerText = ''
         dataList.length = 0
     }
-
-
-    function geoCode(){
-        let address = ymaps.geocode(coords, {
-            results: 1
-        })
-        .then((res) => {
-         var firstGeoObject = res.geoObjects.get(0).properties.get('text')
-         return  firstGeoObject
-     })
-
-        return address
-    }
-
 
     function closeWindow() {
         modalForm.style.display = 'none'
